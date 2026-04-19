@@ -164,7 +164,15 @@ python -m axiom.run \
 ## 安装依赖
 
 ```bash
-pip install sentence-transformers chromadb faiss-cpu openai anthropic transformers torch torchvision Pillow
+# 安装核心依赖
+pip install sentence-transformers chromadb faiss-cpu openai anthropic transformers torch torchvision Pillow numpy
+
+# 安装 Axiom 子模块（从 GitHub）
+pip install git+https://github.com/seiner69/axiom-chunker.git
+pip install git+https://github.com/seiner69/axiom-embedder.git
+pip install git+https://github.com/seiner69/axiom-vectorstore.git
+pip install git+https://github.com/seiner69/axiom-retriever.git
+pip install git+https://github.com/seiner69/axiom-generator.git
 ```
 
 ## 模块结构
