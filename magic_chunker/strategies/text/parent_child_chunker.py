@@ -138,14 +138,17 @@ class ParentChildChunker(BaseChunker):
             parent_chunks = self._split_into_parent_chunks(node.content)
             for p_idx, p_text in enumerate(parent_chunks):
                 if len(p_text) < self.min_parent_size and p_idx > 0:
-                    # 合并到上一个父文档
+                    # 合并到上一个父文档，子块 char_start/char_end 不再精确（相对于合并后文本）
                     if parent_documents:
                         parent_documents[-1]["content"] += "\n" + p_text
                         old_parent_id = parent_documents[-1]["id"]
-                        # 为合并的块创建子文档
                         extra_children = self._split_into_child_chunks(p_text, old_parent_id)
                         for ec in extra_children:
                             ec.index = child_counter
+                            # char_start/char_end 不准确，清除以避免误用
+                            ec.metadata.pop("char_start", None)
+                            ec.metadata.pop("char_end", None)
+                            ec.metadata["merged"] = True
                             all_children.append(ec)
                             parent_id_to_children[old_parent_id].append(ec.id)
                             child_counter += 1

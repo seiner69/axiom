@@ -198,15 +198,28 @@ class FAISSVectorStore(BaseVectorStore):
     def delete(self, entry_ids: list[str]) -> None:
         """Delete entries from the store.
 
-        Note: FAISS doesn't support direct deletion. This is a no-op for safety.
-        Consider rebuilding the index if deletion is needed.
+        Note: FAISS IndexFlatIP/L2 does not support direct deletion.
+        The request is logged as a warning but entries remain in the index.
+        For production, rebuild the index if deletion is needed.
 
         Args:
             entry_ids: List of entry IDs to delete.
         """
-        # FAISS IndexFlatIP/L2 doesn't support deletion
-        # For production, consider using a workaround or a different index type
-        pass
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.warning(
+            "FAISSVectorStore.delete() called but FAISS does not support "
+            "direct deletion. %d entries requested to delete: %s",
+            len(entry_ids), entry_ids
+        )
+        # Track deletion requests in metadata only (in-memory state)
+        for entry_id in entry_ids:
+            if entry_id in self._id_to_idx:
+                del self._id_to_idx[entry_id]
+            if entry_id in self._texts:
+                del self._texts[entry_id]
+            if entry_id in self._metadatas:
+                del self._metadatas[entry_id]
 
     def persist(self, path: str) -> None:
         """Persist the index to disk.

@@ -65,12 +65,16 @@ class InMemoryStore:
 
     @classmethod
     def load(cls, path: str) -> "InMemoryStore":
-        """从本地 JSON 文件加载。"""
+        """从本地 JSON 文件加载。文件不存在时返回空 store。"""
         import json
+        import logging
+        logger = logging.getLogger(__name__)
         store = cls()
         try:
             with open(path, "r", encoding="utf-8") as f:
                 store._store = json.load(f)
         except FileNotFoundError:
-            pass
+            logger.info("InMemoryStore: 文件不存在，返回空 store: %s", path)
+        except json.JSONDecodeError as e:
+            logger.warning("InMemoryStore: JSON 解析失败，跳过加载: %s, 错误: %s", path, e)
         return store

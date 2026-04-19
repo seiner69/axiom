@@ -74,7 +74,7 @@ class ParentChildRetriever(BaseRetriever):
         # Step 3: 去重（同一个父文档可能命中多个子文档）
         unique_parent_ids = list(dict.fromkeys(parent_ids))
 
-        # Step 4: 从 DocumentStore 拉取父文档
+        # Step 4: 从 DocumentStore 拉取所有父文档
         parent_docs: list[RetrievedChunk] = []
         for pid in unique_parent_ids:
             doc = self.document_store.get(pid)
@@ -90,11 +90,10 @@ class ParentChildRetriever(BaseRetriever):
                     ],
                 )
                 parent_docs.append(retrieved)
-                if len(parent_docs) >= top_k:
-                    break
 
-        # Step 5: 按分数排序
+        # Step 5: 按分数排序后截取 top_k
         parent_docs.sort(key=lambda x: x.score, reverse=True)
+        parent_docs = parent_docs[:top_k]
 
         return RetrievalResult(
             chunks=parent_docs,

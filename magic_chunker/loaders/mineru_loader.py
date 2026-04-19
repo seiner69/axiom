@@ -389,19 +389,3 @@ class MinerUMarkdownLoader:
             node_counter += 1
 
         return nodes
-
-        # Add tables as separate nodes
-        for table_html, _, _ in tables:
-            node = Node(
-                id=self._build_node_id(None, node_counter),
-                content=table_html,
-                node_type=ChunkType.TABLE,
-                metadata={
-                    "source": self.md_path.stem,
-                    "elem_type": "table",
-                },
-            )
-            nodes.append(node)
-            node_counter += 1
-
-        return nodes
