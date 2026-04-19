@@ -20,6 +20,7 @@ from magic_vectorstore.core import (
     VectorStoreStats,
     VectorStoreType,
 )
+from magic_vectorstore.core.inmemory_store import InMemoryStore
 from magic_vectorstore.strategies import ChromaVectorStore, FAISSVectorStore
 
 __all__ = [
@@ -29,6 +30,7 @@ __all__ = [
     "VectorEntry",
     "VectorStoreStats",
     "VectorStoreType",
+    "InMemoryStore",
     # Strategies
     "ChromaVectorStore",
     "FAISSVectorStore",

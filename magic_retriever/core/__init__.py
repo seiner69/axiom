@@ -22,6 +22,7 @@ class RetrievedChunk:
         score: Relevance score.
         rank: Rank position (1-indexed).
         metadata: Additional metadata.
+        child_chunk_ids: (Parent-child mode) IDs of child chunks belonging to this parent.
     """
 
     chunk_id: str
@@ -29,6 +30,7 @@ class RetrievedChunk:
     score: float = 0.0
     rank: int = 0
     metadata: dict[str, Any] = field(default_factory=dict)
+    child_chunk_ids: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         return {
@@ -37,6 +39,7 @@ class RetrievedChunk:
             "score": self.score,
             "rank": self.rank,
             "metadata": self.metadata,
+            "child_chunk_ids": self.child_chunk_ids,
         }
 
 
@@ -55,6 +58,11 @@ class RetrievalResult:
     query: str = ""
     mode: RetrievalMode = RetrievalMode.SIMILARITY
     metadata: dict[str, Any] = field(default_factory=dict)
+
+    @property
+    def scores(self) -> list[float]:
+        """Convenience property to get scores of all chunks."""
+        return [c.score for c in self.chunks]
 
     def to_dict(self) -> dict:
         return {

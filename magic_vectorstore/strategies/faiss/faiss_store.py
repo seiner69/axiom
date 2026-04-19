@@ -32,26 +32,26 @@ class FAISSVectorStore(BaseVectorStore):
 
     def __init__(
         self,
-        dimension: int = 384,
+        dimension: int = 0,  # 0 means auto-detect from first entry
         index_type: str = "flat",
         metric: str = "cosine",
         nlist: int = 100,
         nprobe: int = 10,
     ):
-        self.dimension = dimension
+        self.dimension = dimension  # May be updated on first add()
         self.index_type = index_type.lower()
         self.metric = metric.lower()
         self.nlist = nlist
         self.nprobe = nprobe
 
-        # Create index
-        self._index = self._create_index()
+        self._index = None  # Created on first add() when dimension is known
         self._id_to_idx: dict[str, int] = {}
         self._idx_to_id: dict[int, str] = {}
         self._texts: dict[str, str] = {}
         self._metadatas: dict[str, dict] = {}
         self._next_idx = 0
         self._is_trained = self.index_type == "flat"
+        self._dimension_auto_set = dimension == 0
 
     def _create_index(self):
         """Create FAISS index based on type."""
@@ -99,6 +99,11 @@ class FAISSVectorStore(BaseVectorStore):
         """
         if not entries:
             return
+
+        # Auto-detect dimension from first entry if needed
+        if self._dimension_auto_set and self.dimension == 0:
+            self.dimension = len(entries[0].embedding)
+            self._index = self._create_index()
 
         # Validate dimensions
         for entry in entries:
